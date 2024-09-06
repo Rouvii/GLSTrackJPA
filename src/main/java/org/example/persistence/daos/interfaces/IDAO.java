@@ -1,4 +1,4 @@
-package org.example.persistence.daos;
+package org.example.persistence.daos.interfaces;
 
 import java.util.Set;
 

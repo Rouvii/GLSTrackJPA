@@ -6,7 +6,10 @@ import lombok.*;
 import org.example.HibernateConfig;
 import org.example.persistence.entities.Package;
 import org.example.persistence.entities.Package.DeliveryStatus;
+
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Rouvi
@@ -27,7 +30,7 @@ public class Package {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "trackingnmb",unique = true)
+    @Column(name = "trackingnmb", unique = true)
     private String trackingNumber;
     @Column(name = "sendername")
     private String senderName;
@@ -42,6 +45,7 @@ public class Package {
         IN_TRANSIT,
         DELIVERED
     }
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "last_updated")
     private Date lastUpdated;
@@ -51,6 +55,11 @@ public class Package {
     protected void onUpdate() {
         lastUpdated = new Date();
     }
+
+    @OneToMany(mappedBy = "aPackage", cascade = CascadeType.ALL)
+    private Set<Shipment> shipments = new HashSet<>();
+
+
 
 
 }

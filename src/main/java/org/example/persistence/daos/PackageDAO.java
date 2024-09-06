@@ -4,10 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
 import org.example.HibernateConfig;
+import org.example.persistence.daos.interfaces.IDAO;
 import org.example.persistence.entities.Package;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,23 +53,33 @@ public class PackageDAO implements IDAO<Package> {
     public Package getByTrackingNumber(String trackingNumber) {
         try (EntityManager em = emf.createEntityManager()) {
             TypedQuery<Package> query = em.createQuery("SELECT p FROM Package p WHERE p.trackingNumber = :trackingNumber", Package.class);
-            query.setParameter("trackingNumber", trackingNumber);
-            Package result = query.getSingleResult();
-            System.out.println(result);
-            return result;
+            return  query.setParameter("trackingNumber", trackingNumber). getSingleResult();
         }
+
     }
+
+
 
     @Override
     public Set<Package> getAll() {
-        return null;
+        try(EntityManager em = emf.createEntityManager()){
+            TypedQuery<Package> query = em.createQuery("SELECT p FROM Package p", Package.class);
+            return query.getResultList().stream().collect(java.util.stream.Collectors.toSet());
+
+
+        }
+
     }
 
     @Override
     public void update(Package aPackage) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
-            em.merge(aPackage);
+            Package existingPackage = em.find(Package.class, aPackage.getId());
+            if(existingPackage != null){
+                existingPackage.setDeliveryStatus(aPackage.getDeliveryStatus());
+                em.merge(aPackage);
+            }
             em.getTransaction().commit();
         }
     }
@@ -84,10 +93,8 @@ public class PackageDAO implements IDAO<Package> {
         }
     }
 
-    public static void main(String[] args) {
 
-    }
-/*
+
     public void setDeliveryStatus(String number, Package.DeliveryStatus deliveryStatus) {
         try (EntityManager em = emf.createEntityManager()) {
             em.getTransaction().begin();
@@ -97,7 +104,9 @@ public class PackageDAO implements IDAO<Package> {
             em.getTransaction().commit();
         }
     }
-*/
+
+
+
 
 
 }
